@@ -44,8 +44,8 @@ describe "UserPages" do
         it { should have_link('delete', href: user_path(User.first)) }
         it "should be able to delete another user" do
           expect do
-            click_link('delete', match: :first)
-          end.to change(User, :count).by(-1)
+            click_link('delete', match: :first).to change(User, :count).by(-1)
+          end
         end
         it { should_not have_link('delete', href: user_path(admin)) }
       end
@@ -65,6 +65,16 @@ describe "UserPages" do
     
     it { should have_content('Sign up') }
     it { should have_title(full_title('Sign up')) }
+    
+    # 9.6.6
+    describe "already logged in user" do
+      let(:user) { FactoryGirl.create(:user) }
+      before do
+        sign_in user, no_capybara: true 
+        get signup_path
+      end
+      specify { expect(response).to redirect_to(root_url) }
+    end
   end
   
   describe "signup" do
@@ -91,7 +101,7 @@ describe "UserPages" do
         fill_in "Name",         with: "Example User"
         fill_in "Email",        with: "user@example.com"
         fill_in "Password",     with: "foobar"
-        fill_in "Confirmation", with: "foobar"
+        fill_in "Confirm Password", with: "foobar"
       end
       
       it "should create a user" do
@@ -147,5 +157,7 @@ describe "UserPages" do
       specify { expect(user.reload.name).to  eq new_name }
       specify { expect(user.reload.email).to eq new_email }
     end
+    
+    
   end
 end
