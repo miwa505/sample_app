@@ -1,4 +1,5 @@
 class User < ActiveRecord::Base
+  has_many :microposts, dependent: :destroy
   # additing the following line as per 8.5.1
   # attr_accessible :name, :email, :password, :password_confirmation
   before_save { self.email = email.downcase }
@@ -22,6 +23,11 @@ class User < ActiveRecord::Base
   
   def User.hash(token)
     Digest::SHA1.hexdigest(token.to_s)
+  end
+  
+  def feed
+    # This is preliminary. See "Following users" for the full implementation.
+    Micropost.where("user_id = ?", id)
   end
   
   private
